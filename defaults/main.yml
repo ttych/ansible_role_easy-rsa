@@ -1,2 +1,8 @@
 ---
-# defaults file for ansible_role_easy-rsa
+
+want_easy_rsa: false
+
+# https://github.com/OpenVPN/easy-rsa/releases/download/v3.0.6/EasyRSA-unix-v3.0.6.tgz
+
+# MASTER_SITES=   https://github.com/OpenVPN/easy-rsa/releases/download/v${DISTVERSION}/
+# DISTNAME=       EasyRSA-unix-v${DISTVERSION}

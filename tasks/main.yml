@@ -1,2 +1,10 @@
 ---
-# tasks file for ansible_role_easy-rsa
+
+- block:
+    - include: context.yml
+
+  when: want_easy_rsa
+
+- name: "set has_easy_rsa to {{ want_easy_rsa }}"
+  set_fact:
+    has_easy_rsa: "{{ want_easy_rsa }}"
