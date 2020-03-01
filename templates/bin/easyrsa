@@ -1,0 +1,4 @@
+#! /bin/sh
+: ${EASYRSA:="{{ easy_rsa_dir }}}"
+export EASYRSA
+exec "${EASYRSA}/easyrsa.real" "$@"
