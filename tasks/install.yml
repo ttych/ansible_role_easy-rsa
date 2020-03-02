@@ -1,0 +1,31 @@
+---
+
+- name: "download easy-rsa {{ easy_rsa_release_version }}"
+  get_url:
+    url: "{{ easy_rsa_release_url }}"
+    dest: "{{ easy_rsa_distfiles_dir }}/{{ easy_rsa_release_archive }}"
+    mode: "0444"
+
+- name: "extract archive"
+  unarchive:
+    remote_src: yes
+    src: "{{ easy_rsa_distfiles_dir }}/{{ easy_rsa_release_archive }}"
+    dest: "{{ easy_rsa_dir }}"
+    owner: "{{ easy_rsa_user }}"
+    group: "{{ easy_rsa_group }}"
+    mode: "go-rwx"
+
+- name: "link this release"
+  file:
+    src: "{{ easy_rsa_dir }}/{{ easy_rsa_release_dir }}"
+    dest: "{{ easy_rsa_app_dir }}"
+    force: yes
+    state: link
+
+- name: "deploy easyrsa bin shortcut"
+  template:
+    src: "bin/easyrsa"
+    dest: "/usr/local/bin/easyrsa"
+    owner: "{{ easy_rsa_user }}"
+    group: "{{ easy_rsa_group }}"
+    mode: '0755'

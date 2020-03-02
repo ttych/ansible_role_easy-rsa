@@ -3,6 +3,12 @@
 - block:
     - include: context.yml
 
+    - include: workspace.yml
+
+    - include: install.yml
+
+    # - include: setup.yml
+
   when: want_easy_rsa
 
 - name: "set has_easy_rsa to {{ want_easy_rsa }}"

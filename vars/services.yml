@@ -1,0 +1,3 @@
+---
+
+easy_rsa_dir: "{{ services_dir }}/easy-rsa"
