@@ -7,7 +7,7 @@
 
     - include: install.yml
 
-    # - include: setup.yml
+    - include: setup.yml
 
   when: want_easy_rsa
 

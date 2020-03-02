@@ -13,7 +13,7 @@
     dest: "{{ easy_rsa_dir }}"
     owner: "{{ easy_rsa_user }}"
     group: "{{ easy_rsa_group }}"
-    mode: "go-rwx"
+    mode: "go-w"
 
 - name: "link this release"
   file:

@@ -1,0 +1,14 @@
+---
+
+- name: check pki init state
+  stat:
+    path: "{{ easy_rsa_pki_dir }}/pki"
+  register: t_easyrsa_pki
+
+- name: init pki
+  command: /usr/local/bin/easyrsa init-pki
+  args:
+    chdir: "{{ easy_rsa_pki_dir }}"
+  become: yes
+  become_user: "{{ easy_rsa_user }}"
+  when: not t_easyrsa_pki.stat.exists

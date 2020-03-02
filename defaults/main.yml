@@ -1,15 +1,19 @@
 ---
 
-want_easy_rsa: false
+want_easy_rsa: true
 
 easy_rsa_user: admin
 easy_rsa_group: admin
 easy_rsa_dir: /home/easy-rsa
 easy_rsa_distfiles_dir: "{{ easy_rsa_dir }}/distfiles"
 easy_rsa_app_dir: "{{ easy_rsa_dir }}/easy-rsa"
+easy_rsa_pki_dir: "{{ easy_rsa_dir }}/pki"
+easy_rsa_requests_dir: "{{ easy_rsa_dir }}/requests"
 easy_rsa_directories:
-  - { path: "{{ easy_rsa_dir }}", owner: "{{ easy_rsa_user }}", group: "{{ easy_rsa_group }}", mode: "0700" }
-  - { path: "{{ easy_rsa_distfiles_dir }}", owner: "{{ easy_rsa_user }}", group: "{{ easy_rsa_group }}", mode: "0700" }
+  - { path: "{{ easy_rsa_dir }}", owner: "{{ easy_rsa_user }}", group: "{{ easy_rsa_group }}", mode: "0750" }
+  - { path: "{{ easy_rsa_distfiles_dir }}", owner: "{{ easy_rsa_user }}", group: "{{ easy_rsa_group }}", mode: "0750" }
+  - { path: "{{ easy_rsa_pki_dir }}", owner: "{{ easy_rsa_user }}", group: "{{ easy_rsa_group }}", mode: "0700" }
+  - { path: "{{ easy_rsa_requests_dir }}", owner: "{{ easy_rsa_user }}", group: "{{ easy_rsa_group }}", mode: "0700" }
 easy_rsa_release_version: 3.0.6
 easy_rsa_release_archive: "EasyRSA-unix-v{{ easy_rsa_release_version }}.tgz"
 easy_rsa_release_url: "https://github.com/OpenVPN/easy-rsa/releases/download/v{{ easy_rsa_release_version }}/{{ easy_rsa_release_archive }}"
