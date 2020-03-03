@@ -2,16 +2,16 @@
 
 - name: check pki init state
   stat:
-    path: "{{ easy_rsa_pki_dir }}/pki"
-  register: t_easyrsa_pki
+    path: "{{ easy_rsa_ca_dir }}/pki"
+  register: t_easyrsa_ca
 
 - name: init pki
   command: /usr/local/bin/easyrsa init-pki
   args:
-    chdir: "{{ easy_rsa_pki_dir }}"
+    chdir: "{{ easy_rsa_ca_dir }}"
   become: yes
   become_user: "{{ easy_rsa_user }}"
-  when: not t_easyrsa_pki.stat.exists
+  when: not t_easyrsa_ca.stat.exists
 
 - name: check requests state
   stat:
