@@ -11,7 +11,7 @@ easy_rsa_requests_dir: "{{ easy_rsa_dir }}/requests"
 easy_rsa_base_app_dir: "{{ easy_rsa_dir }}"
 easy_rsa_app_dir: "{{ easy_rsa_base_app_dir }}/easy-rsa"
 easy_rsa_directories:
-  - { path: "{{ easy_rsa_dir }}", owner: "{{ easy_rsa_user }}", group: "{{ easy_rsa_group }}", mode: "0750" }
+  - { path: "{{ easy_rsa_dir }}", owner: "{{ easy_rsa_user }}", group: "{{ easy_rsa_group }}", mode: "0751" }
   - { path: "{{ easy_rsa_distfiles_dir }}", owner: "{{ easy_rsa_user }}", group: "{{ easy_rsa_group }}", mode: "0750" }
   - { path: "{{ easy_rsa_ca_dir }}", owner: "{{ easy_rsa_user }}", group: "{{ easy_rsa_group }}", mode: "0700" }
   - { path: "{{ easy_rsa_requests_dir }}", owner: "{{ easy_rsa_user }}", group: "{{ easy_rsa_group }}", mode: "0700" }
