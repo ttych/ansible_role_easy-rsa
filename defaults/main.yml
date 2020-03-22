@@ -7,6 +7,7 @@ easy_rsa_group: admin
 easy_rsa_dir: /home/easy-rsa
 easy_rsa_distfiles_dir: "{{ easy_rsa_dir }}/distfiles"
 easy_rsa_ca_dir: "{{ easy_rsa_dir }}/ca"
+easy_rsa_ca_passphrase: "{{ easy_rsa_ca_dir }}/passphrase"
 easy_rsa_requests_dir: "{{ easy_rsa_dir }}/requests"
 easy_rsa_base_app_dir: "{{ easy_rsa_dir }}"
 easy_rsa_app_dir: "{{ easy_rsa_base_app_dir }}/easy-rsa"

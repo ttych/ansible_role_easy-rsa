@@ -1,27 +1,63 @@
 ---
 
-- name: check pki init state
+- name: check ca state
   stat:
     path: "{{ easy_rsa_ca_dir }}/pki"
-  register: t_easyrsa_ca
+  register: t_easyrsa_ca_stat
 
-- name: init pki
+- name: init pki for ca
   command: /usr/local/bin/easyrsa init-pki
   args:
     chdir: "{{ easy_rsa_ca_dir }}"
   become: yes
   become_user: "{{ easy_rsa_user }}"
-  when: not t_easyrsa_ca.stat.exists
+  when: not t_easyrsa_ca_stat.stat.exists
+
+
+- name: check ca private key passphrase
+  stat:
+    path: "{{ easy_rsa_ca_passphrase }}"
+  register: t_easyrsa_ca_private_key_passphrase_stat
+
+- block:
+    - name: create ca private key passphrase
+      command: apg -m 30 -n 1 -a 1
+      args:
+        chdir: "{{ easy_rsa_ca_dir }}"
+      become: yes
+      become_user: "{{ easy_rsa_user }}"
+      register: t_easyrsa_ca_private_key_passphrase
+
+    - name:
+      copy:
+        content: "{{ t_easyrsa_ca_private_key_passphrase.stdout }}"
+        dest: "{{ easy_rsa_ca_passphrase }}"
+        mode: "0600"
+        owner: "{{ easy_rsa_user }}"
+        group: "{{ easy_rsa_group }}"
+
+  when: not t_easyrsa_ca_private_key_passphrase_stat.stat.exists
+
 
 - name: check requests state
   stat:
     path: "{{ easy_rsa_requests_dir }}/pki"
-  register: t_easyrsa_requests
+  register: t_easyrsa_requests_stat
 
-- name: init pki
-  command: /usr/local/bin/easyrsa init-pki
-  args:
-    chdir: "{{ easy_rsa_requests_dir }}"
-  become: yes
-  become_user: "{{ easy_rsa_user }}"
-  when: not t_easyrsa_requests.stat.exists
+- block:
+    - name: init pki for requests
+      command: /usr/local/bin/easyrsa init-pki
+      args:
+        chdir: "{{ easy_rsa_requests_dir }}"
+      become: yes
+      become_user: "{{ easy_rsa_user }}"
+
+    - name: create certs directory in requests pki
+      file:
+        path: "{{ easy_rsa_requests_dir }}/pki/certs"
+        owner: "{{ easy_rsa_user }}"
+        group: "{{ easy_rsa_group }}"
+        mode: "0700"
+        state: directory
+
+  when: not t_easyrsa_requests_stat.stat.exists
