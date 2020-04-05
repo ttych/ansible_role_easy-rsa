@@ -1,0 +1,4 @@
+---
+
+- include: generate_certificate.yml cn="{{ item.cn }}" type="{{ item.type }}"
+  loop: "{{ easy_rsa_certificates_to_generate }}"

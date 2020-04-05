@@ -9,6 +9,8 @@
 
     - include: setup.yml
 
+    - include: generate_certificates.yml
+
   when: want_easy_rsa
 
 - name: "set has_easy_rsa to {{ want_easy_rsa }}"

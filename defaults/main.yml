@@ -8,7 +8,11 @@ easy_rsa_dir: /home/easy-rsa
 easy_rsa_distfiles_dir: "{{ easy_rsa_dir }}/distfiles"
 easy_rsa_ca_dir: "{{ easy_rsa_dir }}/ca"
 easy_rsa_ca_passphrase: "{{ easy_rsa_ca_dir }}/passphrase"
+easy_rsa_ca_pki: "{{ easy_rsa_ca_dir }}/pki"
+easy_rsa_ca_vars: "{{ easy_rsa_ca_pki }}/vars"
 easy_rsa_requests_dir: "{{ easy_rsa_dir }}/requests"
+easy_rsa_requests_pki: "{{ easy_rsa_requests_dir }}/pki"
+easy_rsa_requests_vars: "{{ easy_rsa_requests_pki }}/vars"
 easy_rsa_base_app_dir: "{{ easy_rsa_dir }}"
 easy_rsa_app_dir: "{{ easy_rsa_base_app_dir }}/easy-rsa"
 easy_rsa_directories:
@@ -17,6 +21,54 @@ easy_rsa_directories:
   - { path: "{{ easy_rsa_ca_dir }}", owner: "{{ easy_rsa_user }}", group: "{{ easy_rsa_group }}", mode: "0700" }
   - { path: "{{ easy_rsa_requests_dir }}", owner: "{{ easy_rsa_user }}", group: "{{ easy_rsa_group }}", mode: "0700" }
 easy_rsa_release_version: 3.0.7
-easy_rsa_release_archive: "EasyRSA-unix-v{{ easy_rsa_release_version }}.tgz"
+# easy_rsa_release_archive: "EasyRSA-unix-v{{ easy_rsa_release_version }}.tgz"
+easy_rsa_release_dir: "EasyRSA-{{ easy_rsa_release_version }}"
+easy_rsa_release_archive: "{{ easy_rsa_release_dir }}.tgz"
 easy_rsa_release_url: "https://github.com/OpenVPN/easy-rsa/releases/download/v{{ easy_rsa_release_version }}/{{ easy_rsa_release_archive }}"
-easy_rsa_release_dir: "EasyRSA-v{{ easy_rsa_release_version }}"
+
+easy_rsa_domain: local
+
+easy_rsa_dn_requests: cn_only
+easy_rsa_req_cn_requests: "{{ ansible_hostname }}.{{ easy_rsa_req_org }}"
+
+easy_rsa_dn_ca: cn_only
+easy_rsa_req_cn_ca: "ca.{{ easy_rsa_req_org }}"
+
+easy_rsa_req_country: FR
+easy_rsa_req_province: "Ile de France"
+easy_rsa_req_city: Paris
+easy_rsa_req_org: "{{ easy_rsa_domain }}"
+easy_rsa_req_email: "admin@{{ easy_rsa_domain }}"
+easy_rsa_req_ou: Infra
+
+
+easy_rsa_algo: ec
+easy_rsa_curve: secp521r1
+easy_rsa_digest: sha512
+
+easy_rsa_vars_security:
+  - { key: EASYRSA_ALGO, value: "{{ easy_rsa_algo }}" }
+  - { key: EASYRSA_CURVE, value: "{{ easy_rsa_curve }}" }
+  - { key: EASYRSA_DIGEST, value: "{{ easy_rsa_digest }}" }
+
+easy_rsa_vars_org:
+  - { key: EASYRSA_REQ_COUNTRY, value: "{{ easy_rsa_req_country }}" }
+  - { key: EASYRSA_REQ_PROVINCE, value: "{{ easy_rsa_req_province }}" }
+  - { key: EASYRSA_REQ_CITY, value: "{{ easy_rsa_req_city }}" }
+  - { key: EASYRSA_REQ_ORG, value: "{{ easy_rsa_req_org }}" }
+  - { key: EASYRSA_REQ_EMAIL, value: "{{ easy_rsa_req_email }}" }
+  - { key: EASYRSA_REQ_OU, value: "{{ easy_rsa_req_ou }}" }
+
+easy_rsa_vars_requests:
+  - { key: EASYRSA_DN, value: "{{ easy_rsa_dn_requests }}" }
+  - { key: EASYRSA_REQ_CN, value: "{{ easy_rsa_req_cn_requests }}" }
+
+easy_rsa_vars_ca:
+  - { key: EASYRSA_DN, value: "{{ easy_rsa_dn_ca }}" }
+  - { key: EASYRSA_REQ_CN, value: "{{ easy_rsa_req_cn_ca }}" }
+
+
+easy_rsa_certificates_to_generate:
+  - { cn: "gitlab.{{ easy_rsa_domain }}", type: server }
+  - { cn: "home.{{ easy_rsa_domain }}", type: server }
+  - { cn: "www.{{ easy_rsa_domain }}", type: server }
