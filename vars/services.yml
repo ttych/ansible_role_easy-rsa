@@ -1,3 +1,3 @@
 ---
 
-easy_rsa_dir: "{{ services_dir }}/easy-rsa"
+easy_rsa_dir: "{{ service_dir }}/easy-rsa"

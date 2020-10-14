@@ -1,4 +1,5 @@
 ---
+
 - name: include distribution specific variables
   include_vars:
     dir: vars
@@ -9,11 +10,11 @@
     - "{{ ansible_distribution }}.yml"
     - "{{ ansible_distribution + '_' + ansible_distribution_release }}.yml"
 
-- name: include services variables
+- name: include service variables
   include_vars:
     dir: vars
-    files_matching: "services.yml"
-  when: has_services|d(false)
+    files_matching: "service.yml"
+  when: has_service|d(false)
 
 - name: include daemontools variables
   include_vars:
