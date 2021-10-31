@@ -42,7 +42,7 @@
 
 - block:
     - name: create ca private key passphrase
-      command: apg -m 30 -n 1 -a 1
+      command: apg -m 30 -n 1 -M LNSC
       args:
         chdir: "{{ easy_rsa_ca_dir }}"
       become: yes
