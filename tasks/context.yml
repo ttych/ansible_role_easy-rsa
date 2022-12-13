@@ -8,7 +8,8 @@
     - "{{ ansible_system }}.yml"
     - "{{ ansible_os_family }}.yml"
     - "{{ ansible_distribution }}.yml"
-    - "{{ ansible_distribution + '_' + ansible_distribution_release }}.yml"
+    - "{{ ansible_distribution + '_' + ansible_distribution_major_version }}.yml"
+    - "{{ ansible_distribution + '_' + ansible_distribution_version }}.yml"
 
 - name: include service variables
   include_vars:

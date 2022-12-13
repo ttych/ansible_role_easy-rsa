@@ -22,10 +22,10 @@
     force: yes
     state: link
 
-- name: "deploy easyrsa bin shortcut"
-  template:
-    src: "bin/easyrsa"
-    dest: "/usr/local/bin/easyrsa"
-    owner: "{{ easy_rsa_user }}"
-    group: "{{ easy_rsa_group }}"
-    mode: '0755'
+# - name: "deploy easyrsa bin shortcut"
+#   template:
+#     src: "bin/easyrsa"
+#     dest: "/usr/local/bin/easyrsa"
+#     owner: "{{ easy_rsa_user }}"
+#     group: "{{ easy_rsa_group }}"
+#     mode: '0755'

@@ -7,21 +7,25 @@
 
 - block:
     - name: create request
-      command: "easyrsa --batch --subject-alt-name=DNS:{{ cn }},DNS:{{ cn.split('.')[0] }} --req-cn={{ cn }} gen-req {{ cn }} nopass"
+      command: "{{ easy_rsa_app_dir }}/easyrsa --batch --subject-alt-name=DNS:{{ cn }},DNS:{{ cn.split('.')[0] }} --req-cn={{ cn }} gen-req {{ cn }} nopass"
       args:
         chdir: "{{ easy_rsa_requests_dir }}"
+      environment:
+        OS: ""
       become: yes
       become_user: "{{ easy_rsa_user }}"
 
     - name: import request
-      command: "easyrsa --batch import-req {{ easy_rsa_requests_pki }}/reqs/{{ cn }}.req {{ cn }}"
+      command: "{{ easy_rsa_app_dir }}/easyrsa --batch import-req {{ easy_rsa_requests_pki }}/reqs/{{ cn }}.req {{ cn }}"
       args:
         chdir: "{{ easy_rsa_ca_dir }}"
+      environment:
+        OS: ""
       become: yes
       become_user: "{{ easy_rsa_user }}"
 
     - name: sign request
-      command: easyrsa --batch --passin=file:passphrase --passout=file:passphrase sign-req {{ type }} {{ cn }}
+      command: "{{ easy_rsa_app_dir }}/easyrsa --batch --passin=file:passphrase --passout=file:passphrase sign-req {{ type }} {{ cn }}"
       args:
         chdir: "{{ easy_rsa_ca_dir }}"
       become: yes

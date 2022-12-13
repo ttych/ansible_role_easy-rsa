@@ -6,9 +6,11 @@
   register: t_easyrsa_ca_stat
 
 - name: init pki for ca
-  command: /usr/local/bin/easyrsa init-pki
+  command: "{{ easy_rsa_app_dir }}/easyrsa init-pki"
   args:
     chdir: "{{ easy_rsa_ca_dir }}"
+  environment:
+    OS: ""
   become: yes
   become_user: "{{ easy_rsa_user }}"
   when: not t_easyrsa_ca_stat.stat.exists
@@ -47,11 +49,11 @@
         chdir: "{{ easy_rsa_ca_dir }}"
       become: yes
       become_user: "{{ easy_rsa_user }}"
-      register: t_easyrsa_ca_private_key_passphrase
+      register: t_easyrsa_ca_private_key_passphrase_cmd
 
     - name: save ca passphrase
       copy:
-        content: "{{ t_easyrsa_ca_private_key_passphrase.stdout }}"
+        content: "{{ t_easyrsa_ca_private_key_passphrase_cmd.stdout }}"
         dest: "{{ easy_rsa_ca_passphrase }}"
         mode: "0600"
         owner: "{{ easy_rsa_user }}"
@@ -59,15 +61,30 @@
 
   when: not t_easyrsa_ca_private_key_passphrase_stat.stat.exists
 
+- block:
+    - name: reload ca private key passphrase
+      command: "cat {{ easy_rsa_ca_passphrase }}"
+      changed_when: no
+      register: t_easyrsa_ca_private_key_passphrase_cmd
+
+  when: t_easyrsa_ca_private_key_passphrase_stat.stat.exists
+
+- name: set ca private key passphrase
+  set_fact:
+    t_easyrsa_ca_private_key_passphrase: "{{ t_easyrsa_ca_private_key_passphrase_cmd.stdout }}"
+
+
 - name: check ca certs
   stat:
     path: "{{ easy_rsa_ca_pki }}/ca.crt"
   register: t_easyrsa_ca_cert_stat
 
 - name: build-ca
-  command: "{{ easy_rsa_app_dir }}/easyrsa --passin=file:{{ easy_rsa_ca_passphrase }} --passout=file:{{ easy_rsa_ca_passphrase }} --batch build-ca"
+  command: "{{ easy_rsa_app_dir }}/easyrsa --passin=\"pass:{{ t_easyrsa_ca_private_key_passphrase }}\" --passout=\"pass:{{ t_easyrsa_ca_private_key_passphrase }}\" --batch build-ca"
   args:
     chdir: "{{ easy_rsa_ca_dir }}"
+  environment:
+    OS: ""
   become: yes
   become_user: "{{ easy_rsa_user }}"
   when: not t_easyrsa_ca_cert_stat.stat.exists
@@ -81,9 +98,11 @@
   register: t_easyrsa_requests_stat
 
 - name: init pki for requests
-  command: /usr/local/bin/easyrsa init-pki
+  command: "{{ easy_rsa_app_dir }}/easyrsa init-pki"
   args:
     chdir: "{{ easy_rsa_requests_dir }}"
+  environment:
+    OS: ""
   become: yes
   become_user: "{{ easy_rsa_user }}"
   when: not t_easyrsa_requests_stat.stat.exists
