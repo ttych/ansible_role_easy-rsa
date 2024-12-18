@@ -1,15 +1,33 @@
 ---
 
 - block:
-    - include: context.yml
+    - include_tasks: context.yml
 
-    - include: workspace.yml
+    - include_tasks: accounts.yml
+      vars:
+        accounts_groups: "{{ easy_rsa_groups }}"
+        accounts_users: "{{ easy_rsa_users }}"
 
-    - include: install.yml
+    - include_tasks: workspace.yml
+      vars:
+        workspace_fs: "{{ easy_rsa_dir }}"
+        workspace_directories: "{{ easy_rsa_directories }}"
 
-    - include: setup.yml
+    - include_tasks: install.yml
 
-    - include: generate_certificates.yml
+    - include_tasks: configure.yml
+      vars:
+        easy_rsa_instance_type: ca
+        easy_rsa_instance_dir: "{{ easy_rsa_ca_dir }}"
+        easy_rsa_instance_vars: "{{ easy_rsa_vars_base + easy_rsa_vars_dn + easy_rsa_vars_security + easy_rsa_vars_ca }}"
+
+    - include_tasks: configure.yml
+      vars:
+        easy_rsa_instance_type: request
+        easy_rsa_instance_dir: "{{ easy_rsa_request_dir }}"
+        easy_rsa_instance_vars: "{{ easy_rsa_vars_base + easy_rsa_vars_dn + easy_rsa_vars_security + easy_rsa_vars_request }}"
+
+    - include_tasks: generate_certificates.yml
 
   when: want_easy_rsa
 

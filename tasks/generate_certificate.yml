@@ -2,30 +2,30 @@
 
 - name: check if cert exists
   stat:
-    path: "{{ easy_rsa_requests_pki }}/certs/{{ cn }}.crt"
+    path: "{{ easy_rsa_request_pki_dir }}/certs/{{ cn }}.crt"
   register: t_easy_rsa_generate_certificate_crt
 
 - block:
     - name: create request
-      command: "{{ easy_rsa_app_dir }}/easyrsa --batch --subject-alt-name=DNS:{{ cn }},DNS:{{ cn.split('.')[0] }} --req-cn={{ cn }} gen-req {{ cn }} nopass"
+      command: "{{ easy_rsa_dist_bin }} --batch --san=DNS:{{ cn }} --san=DNS:{{ cn.split('.')[0] }} --req-cn={{ cn }} gen-req {{ cn }} nopass"
       args:
-        chdir: "{{ easy_rsa_requests_dir }}"
-      environment:
-        OS: ""
+        chdir: "{{ easy_rsa_request_dir }}"
+      # environment:
+      #   OS: ""
       become: yes
       become_user: "{{ easy_rsa_user }}"
 
     - name: import request
-      command: "{{ easy_rsa_app_dir }}/easyrsa --batch import-req {{ easy_rsa_requests_pki }}/reqs/{{ cn }}.req {{ cn }}"
+      command: "{{ easy_rsa_dist_bin }} --batch import-req {{ easy_rsa_request_pki_dir }}/reqs/{{ cn }}.req {{ cn }}"
       args:
         chdir: "{{ easy_rsa_ca_dir }}"
-      environment:
-        OS: ""
+      # environment:
+      #   OS: ""
       become: yes
       become_user: "{{ easy_rsa_user }}"
 
     - name: sign request
-      command: "{{ easy_rsa_app_dir }}/easyrsa --batch --passin=file:passphrase --passout=file:passphrase sign-req {{ type }} {{ cn }}"
+      command: "{{ easy_rsa_dist_bin }} --batch --copy-ext --passin=file:passphrase sign-req {{ type }} {{ cn }}"
       args:
         chdir: "{{ easy_rsa_ca_dir }}"
       become: yes
@@ -33,11 +33,11 @@
 
     - name: copy cert
       copy:
-        src: "{{ easy_rsa_ca_pki }}/issued/{{ cn }}.crt"
-        dest: "{{ easy_rsa_requests_pki }}/certs/{{ cn }}.crt"
+        src: "{{ easy_rsa_ca_pki_dir }}/issued/{{ cn }}.crt"
+        dest: "{{ easy_rsa_request_pki_dir }}/certs/{{ cn }}.crt"
         remote_src: yes
         owner: "{{ easy_rsa_user }}"
         group: "{{ easy_rsa_group }}"
-        mode: "0600"
+        mode: "0640"
 
   when: not t_easy_rsa_generate_certificate_crt.stat.exists

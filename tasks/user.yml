@@ -1,0 +1,104 @@
+---
+
+- block:
+
+    - name: user_zfs_properties
+      set_fact:
+        user_zfs_properties:
+          setuid: off
+          compression: "lz4"
+          sharenfs: off
+          sharesmb: off
+          atime: off
+          relatime: off
+      when: user_zfs_properties is not defined
+
+    - name: define user_home
+      set_fact:
+        user_home: "{{ user.home | default('/home/' + user.name) }}"
+
+    - name: define user_home_base
+      set_fact:
+        user_home_base: "{{ user_home | dirname }}"
+
+    - name: define user_home_name
+      set_fact:
+        user_home_name: "{{ user_home | basename }}"
+
+    - name: "get associated dataset for {{ user_home_base }}"
+      shell: zfs list -H "{{ user_home_base }}" | awk '$5 = "{{ user_home_base }}" {print $1}'
+      register: user_home_base_dataset
+      changed_when: no
+
+    - block:
+        - name: "create dataset for {{ user_home }}"
+          zfs:
+            name: "{{ user_home_base_dataset.stdout }}/{{ user_home_name }}"
+            state: present
+            extra_zfs_properties: "{{ user_zfs_properties | combine(user.zfs_properties|d({})) }}"
+
+      when:
+        - user_home_base_dataset.rc == 0
+        - user_home_base_dataset.stdout != ""
+
+  when:
+    - user.home is not defined or user.home != '/nonexistent'
+    - user.create_home is not defined or user.create_home
+
+
+- name: "create {{ user.name }} user"
+  user:
+    name: "{{ user.name }}"
+    uid: "{{ user.uid | default(omit) }}"
+    comment: "{{ user.comment }}"
+    create_home: "{{ user.create_home | default(omit) }}"
+    home: "{{ user.home | default(omit) }}"
+    force: yes
+    group: "{{ user.group }}"
+    groups: "{{ user.groups | default(omit) }}"
+    shell: "{{ user.shell | default('/usr/sbin/nologin') }}"
+    state: "{{ user.state | default('present') }}"
+    password: "{{ user.password | default(omit) }}"
+    update_password: "{{ user.update_password | default(omit) }}"
+    append: "{{ user.append | default('no') }}"
+
+
+- name: "fix {{ user.name }} homedir permissions"
+  file:
+    path: "{{ user_home }}"
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+    mode: "{{ user.home_mode | default('0700') }}"
+    #recurse: yes
+    #follow: no
+  when:
+    - user.create_home|d(true)
+    - user.home_mode is defined
+    - user_home is defined
+
+
+- name: "add authorized_key for {{ user.name }}"
+  authorized_key:
+    user: "{{ user.name }}"
+    key: "{{ key }}"
+  loop: "{{ user.authorized_keys | default([]) }}"
+  loop_control:
+    loop_var: key
+  when: key
+
+
+- name: deploy shell environments
+  template:
+    src: "dotfiles/{{ item }}"
+    dest: "{{ user.home }}/{{ item }}"
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+    mode: "0600"
+  failed_when: no
+  when: user.home is defined
+  loop:
+    - .profile
+    - .bashrc
+    - .bash_profile
+    - .zprofile
+    - .zshrc

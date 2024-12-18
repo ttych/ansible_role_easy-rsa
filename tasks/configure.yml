@@ -1,0 +1,118 @@
+---
+
+- name: stat pki
+  stat:
+    path: "{{ easy_rsa_instance_dir }}/pki"
+  register: t_easy_rsa_instance_pki_stat
+
+- name: init-pki
+  command: "{{ easy_rsa_dist_bin }} init-pki"
+  args:
+    chdir: "{{ easy_rsa_instance_dir }}"
+  # environment:
+  #   OS: ""
+  become: yes
+  become_user: "{{ easy_rsa_user }}"
+  when: not t_easy_rsa_instance_pki_stat.stat.exists
+
+
+- name: stat vars
+  stat:
+    path: "{{ easy_rsa_instance_dir }}/pki/vars"
+  register: t_easy_rsa_instance_vars_stat
+
+- block:
+    - name: init vars
+      copy:
+        src: "{{ easy_rsa_instance_dir }}/pki/vars.example"
+        dest: "{{ easy_rsa_instance_dir }}/pki/vars"
+        owner: "{{ easy_rsa_admin_user }}"
+        group: "{{ easy_rsa_group }}"
+        mode: "0640"
+        remote_src: yes
+
+  when: not t_easy_rsa_instance_vars_stat.stat.exists
+
+
+- name: set vars
+  lineinfile:
+    path: "{{ easy_rsa_instance_dir }}/pki/vars"
+    regexp: "^set_var\\s+{{ item.var }}\\s"
+    line: "set_var {{ item.var }} \"{{ item.value }}\""
+    insertafter: "^#\\s*set_var\\s+{{ item.var }}\\s"
+  when: item.value is not none
+  loop: "{{ easy_rsa_instance_vars }}"
+
+
+- block:
+    - name: check ca passphrase
+      stat:
+        path: "{{ easy_rsa_instance_dir }}/passphrase"
+      register: t_easy_rsa_instance_ca_passphrase_stat
+
+    - block:
+        - name: create passphrase
+          command: apg -m 64 -n 1 -M LNSC
+          args:
+            chdir: "{{ easy_rsa_ca_dir }}"
+          become: yes
+          become_user: "{{ easy_rsa_user }}"
+          register: t_easy_rsa_instance_ca_passphrase_cmd
+
+        - name: store passphrase
+          copy:
+            content: "{{ t_easy_rsa_instance_ca_passphrase_cmd.stdout }}"
+            dest: "{{ easy_rsa_instance_dir }}/passphrase"
+            mode: "0600"
+            owner: "{{ easy_rsa_user }}"
+            group: "{{ easy_rsa_group }}"
+
+        - name: set passphrase
+          set_fact:
+            t_easy_rsa_instance_ca_passphrase: "{{ t_easy_rsa_instance_ca_passphrase_cmd.stdout }}"
+
+      when: not t_easy_rsa_instance_ca_passphrase_stat.stat.exists
+
+    - block:
+        - name: reload ca passphrase
+          command: "cat {{ easy_rsa_instance_dir }}/passphrase"
+          args:
+            chdir: "{{ easy_rsa_ca_dir }}"
+          changed_when: no
+          register: t_easy_rsa_instance_ca_passphrase_cmd
+
+        - name: set passphrase
+          set_fact:
+            t_easy_rsa_instance_ca_passphrase: "{{ t_easy_rsa_instance_ca_passphrase_cmd.stdout }}"
+
+      when: t_easy_rsa_instance_ca_passphrase_stat.stat.exists
+
+
+    - name: stat CA cert
+      stat:
+        path: "{{ easy_rsa_instance_dir }}/pki/ca.crt"
+      register: t_easy_rsa_instance_ca_cert_stat
+
+    - name: build-ca
+      command: "{{ easy_rsa_dist_bin }} --passin=\"pass:{{ t_easy_rsa_instance_ca_passphrase }}\" --passout=\"pass:{{ t_easy_rsa_instance_ca_passphrase }}\" --batch build-ca"
+      args:
+        chdir: "{{ easy_rsa_instance_dir }}"
+      # environment:
+      #   OS: ""
+      become: yes
+      become_user: "{{ easy_rsa_user }}"
+      when: not t_easy_rsa_instance_ca_cert_stat.stat.exists
+
+  when: easy_rsa_instance_type and easy_rsa_instance_type == 'ca'
+
+
+- block:
+    - name: create certs directory in requests pki
+      file:
+        path: "{{ easy_rsa_instance_dir }}/pki/certs"
+        owner: "{{ easy_rsa_user }}"
+        group: "{{ easy_rsa_group }}"
+        mode: "0750"
+        state: directory
+
+  when: easy_rsa_instance_type and easy_rsa_instance_type == 'request'

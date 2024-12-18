@@ -1,0 +1,5 @@
+---
+
+root_group: root
+
+systemd_system_lib_dir: /lib/systemd/system

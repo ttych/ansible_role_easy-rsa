@@ -1,5 +1,47 @@
 ---
 
+- block:
+
+    - name: workspace_zfs_properties
+      set_fact:
+        workspace_zfs_properties:
+          setuid: off
+          compression: "lz4"
+          sharenfs: off
+          sharesmb: off
+          atime: off
+          relatime: off
+      when: workspace_zfs_properties is not defined
+
+    - name: define workspace_fs_base
+      set_fact:
+        workspace_fs_base: "{{ workspace_fs | dirname }}"
+
+    - name: define workspace_fs_name
+      set_fact:
+        workspace_fs_name: "{{ workspace_fs | basename }}"
+
+    - name: "get associated dataset for {{ workspace_fs_base }}"
+      shell: zfs list -H "{{ workspace_fs_base }}" | awk '$5 = "{{ workspace_fs_base }}" {print $1}'
+      register: workspace_fs_base_dataset
+      changed_when: no
+
+    - block:
+        - name: "create dataset for {{ workspace_fs }}"
+          zfs:
+            name: "{{ workspace_fs_base_dataset.stdout }}/{{ workspace_fs_name }}"
+            state: present
+            extra_zfs_properties: "{{ workspace_zfs_properties | combine(workspace_fs_zfs_properties|d({})) }}"
+
+      when:
+        - workspace_fs_base_dataset.rc == 0
+        - workspace_fs_base_dataset.stdout != ""
+
+  when:
+    - workspace_fs is defined
+    - workspace_fs
+
+
 - name: setup workspace directory tree
   file:
     path: "{{ item.path | d(omit) }}"
@@ -9,4 +51,4 @@
     group: "{{ item.group | d(omit) }}"
     mode: "{{ item.mode | d(omit) }}"
     state: "{{ item.state|d('directory') }}"
-  loop: "{{ easy_rsa_directories }}"
+  loop: "{{ workspace_directories }}"

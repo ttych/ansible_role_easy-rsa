@@ -1,74 +1,173 @@
 ---
 
-want_easy_rsa: true
-
-easy_rsa_user: admin
-easy_rsa_group: admin
-easy_rsa_dir: /home/easy-rsa
-easy_rsa_distfiles_dir: "{{ easy_rsa_dir }}/distfiles"
-easy_rsa_ca_dir: "{{ easy_rsa_dir }}/ca"
-easy_rsa_ca_passphrase: "{{ easy_rsa_ca_dir }}/passphrase"
-easy_rsa_ca_pki: "{{ easy_rsa_ca_dir }}/pki"
-easy_rsa_ca_vars: "{{ easy_rsa_ca_pki }}/vars"
-easy_rsa_requests_dir: "{{ easy_rsa_dir }}/requests"
-easy_rsa_requests_pki: "{{ easy_rsa_requests_dir }}/pki"
-easy_rsa_requests_vars: "{{ easy_rsa_requests_pki }}/vars"
-easy_rsa_base_app_dir: "{{ easy_rsa_dir }}"
-easy_rsa_app_dir: "{{ easy_rsa_base_app_dir }}/easy-rsa"
-easy_rsa_directories:
-  - { path: "{{ easy_rsa_dir }}", owner: root, group: 0, mode: "0751" }
-  - { path: "{{ easy_rsa_distfiles_dir }}", owner: "{{ easy_rsa_user }}", group: "{{ easy_rsa_group }}", mode: "0750" }
-  - { path: "{{ easy_rsa_ca_dir }}", owner: "{{ easy_rsa_user }}", group: "{{ easy_rsa_group }}", mode: "0700" }
-  - { path: "{{ easy_rsa_requests_dir }}", owner: "{{ easy_rsa_user }}", group: "{{ easy_rsa_group }}", mode: "0700" }
-easy_rsa_release_version: 3.1.1
-# easy_rsa_release_archive: "EasyRSA-unix-v{{ easy_rsa_release_version }}.tgz"
-easy_rsa_release_dir: "EasyRSA-{{ easy_rsa_release_version }}"
-easy_rsa_release_archive: "{{ easy_rsa_release_dir }}.tgz"
-easy_rsa_release_url: "https://github.com/OpenVPN/easy-rsa/releases/download/v{{ easy_rsa_release_version }}/{{ easy_rsa_release_archive }}"
+want_easy_rsa: false
 
 easy_rsa_domain: local
 
-easy_rsa_dn_requests: cn_only
-easy_rsa_req_cn_requests: "{{ ansible_hostname }}.{{ easy_rsa_req_org }}"
+easy_rsa_name: easy_rsa
+easy_rsa_dir: "/app/{{ easy_rsa_name }}"
 
-easy_rsa_dn_ca: cn_only
-easy_rsa_req_cn_ca: "ca.{{ easy_rsa_req_org }}"
+easy_rsa_version: 3.2.1
 
-easy_rsa_req_country: FR
-easy_rsa_req_province: "Ile de France"
-easy_rsa_req_city: Paris
-easy_rsa_req_org: "{{ easy_rsa_domain }}"
-easy_rsa_req_email: "admin@{{ easy_rsa_domain }}"
-easy_rsa_req_ou: Infra
+easy_rsa_uid: 3114
+easy_rsa_gid: "{{ easy_rsa_uid }}"
+easy_rsa_homedir: "/home/{{ easy_rsa_user }}"
+easy_rsa_group: easy-rsa
+easy_rsa_groups:
+  - name: "{{ easy_rsa_group }}"
+    gid: "{{ easy_rsa_gid }}"
+easy_rsa_user: easy-rsa
+easy_rsa_users:
+  - name: "{{ easy_rsa_user }}"
+    uid: "{{ easy_rsa_uid }}"
+    comment: "{{ easy_rsa_user }}"
+    group: "{{ easy_rsa_group }}"
+    home: "{{ easy_rsa_homedir }}"
+    shell: /usr/sbin/nologin
+    home_mode: '0700'
+    password: '*'
 
+easy_rsa_admin_user: admin
 
-easy_rsa_algo: ec
-easy_rsa_curve: secp521r1
-easy_rsa_digest: sha512
+easy_rsa_distfiles_dir: "{{ easy_rsa_dir }}/distfiles"
+easy_rsa_ca_dir: "{{ easy_rsa_dir }}/ca"
+easy_rsa_ca_vars: "{{ easy_rsa_ca_dir }}/vars"
+easy_rsa_ca_passphrase: "{{ easy_rsa_ca_dir }}/passphrase"
+easy_rsa_ca_pki_dir: "{{ easy_rsa_ca_dir }}/pki"
+easy_rsa_request_dir: "{{ easy_rsa_dir }}/request"
+easy_rsa_request_vars: "{{ easy_rsa_request_dir }}/vars"
+easy_rsa_request_pki_dir: "{{ easy_rsa_request_dir }}/pki"
+
+easy_rsa_directories:
+  - path: "{{ easy_rsa_dir }}"
+    owner: "{{ easy_rsa_admin_user }}"
+    group: "{{ easy_rsa_group }}"
+    mode: "0755"
+  - path: "{{ easy_rsa_distfiles_dir }}"
+    owner: "{{ easy_rsa_admin_user }}"
+    group: "{{ easy_rsa_group }}"
+    mode: "0755"
+  - path: "{{ easy_rsa_ca_dir }}"
+    owner: "{{ easy_rsa_user }}"
+    group: "{{ easy_rsa_group }}"
+    mode: "0750"
+  # - path: "{{ easy_rsa_ca_pki_dir }}"
+  #   owner: "{{ easy_rsa_user }}"
+  #   group: "{{ easy_rsa_group }}"
+  #   mode: "0750"
+  - path: "{{ easy_rsa_request_dir }}"
+    owner: "{{ easy_rsa_user }}"
+    group: "{{ easy_rsa_group }}"
+    mode: "0750"
+  # - path: "{{ easy_rsa_request_pki_dir }}"
+  #   owner: "{{ easy_rsa_user }}"
+  #   group: "{{ easy_rsa_group }}"
+  #   mode: "0750"
+
+easy_rsa_release_name: EasyRSA
+easy_rsa_release_dist: "{{ easy_rsa_release_name }}-{{ easy_rsa_version }}"
+easy_rsa_release_archive: "{{ easy_rsa_release_dist }}.tgz"
+easy_rsa_release_archive_url: "https://github.com/OpenVPN/easy-rsa/releases/download/v{{ easy_rsa_version }}/{{ easy_rsa_release_archive }}"
+
+easy_rsa_dist_dir: "{{ easy_rsa_dir }}/{{ easy_rsa_release_name }}"
+easy_rsa_dist_bin: "{{ easy_rsa_dist_dir }}/easyrsa"
+easy_rsa_dist_vars: "{{ easy_rsa_dist_dir }}/vars"
+
+easy_rsa_vars_base: []
+
+easy_rsa_var_req_country: ""
+easy_rsa_var_req_province: ""
+easy_rsa_var_req_city: ""
+easy_rsa_var_req_org: "{{ easy_rsa_domain }}"
+# easy_rsa_var_req_email: "admin@{{ easy_rsa_domain }}"
+easy_rsa_var_req_email: ""
+easy_rsa_var_ca_req_ou: pki
+easy_rsa_var_request_req_ou: infra
+easy_rsa_var_preserve_dn: 1
+
+easy_rsa_vars_dn:
+  - var: EASYRSA_REQ_COUNTRY
+    value: "{{ easy_rsa_var_req_country }}"
+  - var: EASYRSA_REQ_PROVINCE
+    value: "{{ easy_rsa_var_req_province }}"
+  - var: EASYRSA_REQ_CITY
+    value: "{{ easy_rsa_var_req_city }}"
+  - var: EASYRSA_REQ_ORG
+    value: "{{ easy_rsa_var_req_org }}"
+  - var: EASYRSA_REQ_EMAIL
+    value: "{{ easy_rsa_var_req_email }}"
+  - var: EASYRSA_PRESERVE_DN
+    value: "{{ easy_rsa_var_preserve_dn }}"
+
+easy_rsa_var_no_pass:
+easy_rsa_var_key_size: 4096
+easy_rsa_var_algo: rsa
+easy_rsa_var_curve: secp521r1
+easy_rsa_var_ca_expire: 3650
+easy_rsa_var_cert_expire: 825
+easy_rsa_var_crl_days: 180
+
+easy_rsa_var_rand_sn: "yes"
+easy_rsa_var_pre_expiry_window: 90
+easy_rsa_var_auto_san:
+easy_rsa_var_bc_crit:
+easy_rsa_var_ku_crit:
+easy_rsa_var_eku_crit:
+easy_rsa_var_san_crit:
 
 easy_rsa_vars_security:
-  - { key: EASYRSA_ALGO, value: "{{ easy_rsa_algo }}" }
-  - { key: EASYRSA_CURVE, value: "{{ easy_rsa_curve }}" }
-  - { key: EASYRSA_DIGEST, value: "{{ easy_rsa_digest }}" }
+  - var: EASYRSA_NO_PASS
+    value: "{{ easy_rsa_var_no_pass }}"
+  - var: EASYRSA_KEY_SIZE
+    value: "{{ easy_rsa_var_key_size }}"
+  - var: EASYRSA_ALGO
+    value: "{{ easy_rsa_var_algo }}"
+  - var: EASYRSA_CURVE
+    value: "{{ easy_rsa_var_curve }}"
+  - var: EASYRSA_CA_EXPIRE
+    value: "{{ easy_rsa_var_ca_expire }}"
+  - var: EASYRSA_CERT_EXPIRE
+    value: "{{ easy_rsa_var_cert_expire }}"
+  - var: EASYRSA_CRL_DAYS
+    value: "{{ easy_rsa_var_crl_days }}"
+  - var: EASYRSA_RAND_SN
+    value: "{{ easy_rsa_var_rand_sn }}"
+  - var: EASYRSA_PRE_EXPIRY_WINDOW
+    value: "{{ easy_rsa_var_pre_expiry_window }}"
+  - var: EASYRSA_AUTO_SAN
+    value: "{{ easy_rsa_var_auto_san | d(none)}}"
+  - var: EASYRSA_BC_CRIT
+    value: "{{ easy_rsa_var_bc_crit | d(none) }}"
+  - var: EASYRSA_KU_CRIT
+    value: "{{ easy_rsa_var_ku_crit | d(none)}}"
+  - var: EASYRSA_EKU_CRIT
+    value: "{{ easy_rsa_var_eku_crit | d(none) }}"
+  - var: EASYRSA_SAN_CRIT
+    value: "{{ easy_rsa_var_san_crit | d(none) }}"
 
-easy_rsa_vars_org:
-  - { key: EASYRSA_REQ_COUNTRY, value: "{{ easy_rsa_req_country }}" }
-  - { key: EASYRSA_REQ_PROVINCE, value: "{{ easy_rsa_req_province }}" }
-  - { key: EASYRSA_REQ_CITY, value: "{{ easy_rsa_req_city }}" }
-  - { key: EASYRSA_REQ_ORG, value: "{{ easy_rsa_req_org }}" }
-  - { key: EASYRSA_REQ_EMAIL, value: "{{ easy_rsa_req_email }}" }
-  - { key: EASYRSA_REQ_OU, value: "{{ easy_rsa_req_ou }}" }
-
-easy_rsa_vars_requests:
-  - { key: EASYRSA_DN, value: "{{ easy_rsa_dn_requests }}" }
-  - { key: EASYRSA_REQ_CN, value: "{{ easy_rsa_req_cn_requests }}" }
+easy_rsa_ca_var_dn: cn_only  # org
+easy_rsa_ca_var_req_cn: "ca.{{ easy_rsa_domain }}"
 
 easy_rsa_vars_ca:
-  - { key: EASYRSA_DN, value: "{{ easy_rsa_dn_ca }}" }
-  - { key: EASYRSA_REQ_CN, value: "{{ easy_rsa_req_cn_ca }}" }
+  - var: EASYRSA_DN
+    value: "{{ easy_rsa_ca_var_dn }}"
+  - var: EASYRSA_REQ_CN
+    value: "{{ easy_rsa_ca_var_req_cn }}"
+  - var: EASYRSA_REQ_OU
+    value: "{{ easy_rsa_var_ca_req_ou }}"
 
+easy_rsa_request_var_dn: org  # cn_only
+easy_rsa_request_var_req_cn: "{{ ansible_hostname }}.{{ easy_rsa_domain }}"
+
+easy_rsa_vars_request:
+  - var: EASYRSA_DN
+    value: "{{ easy_rsa_request_var_dn }}"
+  - var: EASYRSA_REQ_CN
+    value: "{{ easy_rsa_request_var_req_cn }}"
+  - var: EASYRSA_REQ_OU
+    value: "{{ easy_rsa_var_request_req_ou }}"
 
 easy_rsa_certificates_to_generate:
-  - { cn: "gitlab.{{ easy_rsa_domain }}", type: server }
+  - { cn: "{{ ansible_hostname | lower }}.{{ easy_rsa_domain }}", type: serverClient }
   - { cn: "home.{{ easy_rsa_domain }}", type: server }
   - { cn: "www.{{ easy_rsa_domain }}", type: server }

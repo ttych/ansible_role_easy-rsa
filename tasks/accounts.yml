@@ -1,0 +1,12 @@
+---
+
+- include_tasks: group.yml
+  loop: "{{ accounts_groups }}"
+  loop_control:
+    loop_var: group
+
+
+- include_tasks: user.yml
+  loop: "{{ accounts_users }}"
+  loop_control:
+    loop_var: user
