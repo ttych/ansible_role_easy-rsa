@@ -1,0 +1,14 @@
+---
+
+
+- name: deploy scripts
+  template:
+    src: "scripts/{{ item }}"
+    dest: "{{ easy_rsa_scripts_dir }}/{{ item }}"
+    owner: "{{ easy_rsa_admin_user }}"
+    group: "{{ easy_rsa_group }}"
+    mode: "0755"
+  loop:
+    - req_and_sign.sh
+    - revoke_expired.sh
+  register: t_easy_rsa_scripts_update

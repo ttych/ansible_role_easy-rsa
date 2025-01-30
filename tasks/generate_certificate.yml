@@ -7,7 +7,7 @@
 
 - block:
     - name: create request
-      command: "{{ easy_rsa_dist_bin }} --batch --san=DNS:{{ cn }} --san=DNS:{{ cn.split('.')[0] }} --req-cn={{ cn }} gen-req {{ cn }} nopass"
+      command: "{{ easy_rsa_dist_bin }} --batch --san=DNS:{{ cn }} --san=DNS:{{ cn.split('.')[0] }} {{ dns | map('regex_replace', '^(.*)$', '--san=DNS:\\1') | join(' ') }} {{ dns | map('regex_replace', '^([^\\.]+).*$', '--san=DNS:\\1') | join(' ') }} --req-cn={{ cn }} gen-req {{ cn }} nopass"
       args:
         chdir: "{{ easy_rsa_request_dir }}"
       # environment:

@@ -1,0 +1,20 @@
+---
+
+- name: stat cron.allow
+  stat:
+    path: "{{ system_cron_allow }}"
+  register: t_easy_rsa_cron_allow_file
+
+- name: "ensure {{ easy_rsa_user }} is allowed to use cron"
+  lineinfile:
+    path: /etc/cron.allow
+    line: "{{ easy_rsa_user }}"
+    state: present
+  when: t_easy_rsa_cron_allow_file.stat.exists
+
+- name: schedule revoke_expired.sh
+  cron:
+    name: "revoke_expired.sh daily execution"
+    user: "{{ easy_rsa_user }}"
+    job: "{{ easy_rsa_scripts_dir }}/revoke_expired.sh"
+    special_time: "daily"

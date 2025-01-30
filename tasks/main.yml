@@ -29,6 +29,10 @@
 
     - include_tasks: generate_certificates.yml
 
+    - include_tasks: deploy_scripts.yml
+
+    - include_tasks: deploy_maintenance_tasks.yml
+
   when: want_easy_rsa
 
 - name: "set has_easy_rsa to {{ want_easy_rsa }}"

@@ -37,6 +37,7 @@ easy_rsa_ca_pki_dir: "{{ easy_rsa_ca_dir }}/pki"
 easy_rsa_request_dir: "{{ easy_rsa_dir }}/request"
 easy_rsa_request_vars: "{{ easy_rsa_request_dir }}/vars"
 easy_rsa_request_pki_dir: "{{ easy_rsa_request_dir }}/pki"
+easy_rsa_scripts_dir: "{{ easy_rsa_dir }}/scripts"
 
 easy_rsa_directories:
   - path: "{{ easy_rsa_dir }}"
@@ -63,6 +64,10 @@ easy_rsa_directories:
   #   owner: "{{ easy_rsa_user }}"
   #   group: "{{ easy_rsa_group }}"
   #   mode: "0750"
+  - path: "{{ easy_rsa_scripts_dir }}"
+    owner: "{{ easy_rsa_admin_user }}"
+    group: "{{ easy_rsa_group }}"
+    mode: "0755"
 
 easy_rsa_release_name: EasyRSA
 easy_rsa_release_dist: "{{ easy_rsa_release_name }}-{{ easy_rsa_version }}"
@@ -167,7 +172,9 @@ easy_rsa_vars_request:
   - var: EASYRSA_REQ_OU
     value: "{{ easy_rsa_var_request_req_ou }}"
 
-easy_rsa_certificates_to_generate:
+easy_rsa_default_certificates_to_generate:
   - { cn: "{{ ansible_hostname | lower }}.{{ easy_rsa_domain }}", type: serverClient }
   - { cn: "home.{{ easy_rsa_domain }}", type: server }
   - { cn: "www.{{ easy_rsa_domain }}", type: server }
+
+easy_rsa_custom_certificates_to_generate: []
