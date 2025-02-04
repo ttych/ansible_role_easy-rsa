@@ -9,6 +9,10 @@
     group: "{{ easy_rsa_group }}"
     mode: "0755"
   loop:
-    - req_and_sign.sh
+    - easyrsa-ca
+    - easyrsa-request
+    - ca_req_sign.sh
+    - ca_import_sign.sh
+    - req_and_import_sign.sh
     - revoke_expired.sh
   register: t_easy_rsa_scripts_update

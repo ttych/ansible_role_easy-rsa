@@ -97,8 +97,8 @@
       command: "{{ easy_rsa_dist_bin }} --passin=\"pass:{{ t_easy_rsa_instance_ca_passphrase }}\" --passout=\"pass:{{ t_easy_rsa_instance_ca_passphrase }}\" --batch build-ca"
       args:
         chdir: "{{ easy_rsa_instance_dir }}"
-      # environment:
-      #   OS: ""
+      environment:
+        EASYRSA_REQ_CN: "{{ easy_rsa_ca_cn }}"
       become: yes
       become_user: "{{ easy_rsa_user }}"
       when: not t_easy_rsa_instance_ca_cert_stat.stat.exists

@@ -15,23 +15,44 @@
 
     - include_tasks: install.yml
 
-    - include_tasks: configure.yml
-      vars:
-        easy_rsa_instance_type: ca
-        easy_rsa_instance_dir: "{{ easy_rsa_ca_dir }}"
-        easy_rsa_instance_vars: "{{ easy_rsa_vars_base + easy_rsa_vars_dn + easy_rsa_vars_security + easy_rsa_vars_ca }}"
+    - block:
 
-    - include_tasks: configure.yml
-      vars:
-        easy_rsa_instance_type: request
-        easy_rsa_instance_dir: "{{ easy_rsa_request_dir }}"
-        easy_rsa_instance_vars: "{{ easy_rsa_vars_base + easy_rsa_vars_dn + easy_rsa_vars_security + easy_rsa_vars_request }}"
+        - include_tasks: configure.yml
+          vars:
+            easy_rsa_instance_type: ca
+            easy_rsa_instance_dir: "{{ easy_rsa_ca_dir }}"
+            easy_rsa_instance_vars: "{{ easy_rsa_vars_base + easy_rsa_vars_dn + easy_rsa_vars_security + easy_rsa_vars_ca }}"
 
-    - include_tasks: generate_certificates.yml
+        - include_tasks: generate_certificate.yml
+          vars:
+            cn: "{{ item.cn }}"
+            dns: "{{ item.dns | d([]) }}"
+            type: "{{ item.type | d('serverClient') }}"
+          loop: "{{ easy_rsa_default_ca_certificates_to_generate + easy_rsa_custom_ca_certificates_to_generate }}"
+
+      when: easy_rsa_want_ca
+
+    - block:
+
+        - include_tasks: configure.yml
+          vars:
+            easy_rsa_instance_type: request
+            easy_rsa_instance_dir: "{{ easy_rsa_request_dir }}"
+            easy_rsa_instance_vars: "{{ easy_rsa_vars_base + easy_rsa_vars_dn + easy_rsa_vars_security + easy_rsa_vars_request }}"
+
+        - include_tasks: generate_request.yml
+          vars:
+            cn: "{{ item.cn }}"
+            dns: "{{ item.dns | d([]) }}"
+            type: "{{ item.type | d('serverClient') }}"
+          loop: "{{ easy_rsa_default_requests_to_generate + easy_rsa_custom_requests_to_generate }}"
+
+      when: easy_rsa_want_request
 
     - include_tasks: deploy_scripts.yml
 
     - include_tasks: deploy_maintenance_tasks.yml
+      when: easy_rsa_want_ca
 
   when: want_easy_rsa
 

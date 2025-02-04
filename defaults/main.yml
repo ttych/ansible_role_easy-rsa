@@ -2,6 +2,9 @@
 
 want_easy_rsa: false
 
+easy_rsa_want_ca: true
+easy_rsa_want_request: true
+
 easy_rsa_domain: local
 
 easy_rsa_name: easy_rsa
@@ -86,9 +89,15 @@ easy_rsa_var_req_city: ""
 easy_rsa_var_req_org: "{{ easy_rsa_domain }}"
 # easy_rsa_var_req_email: "admin@{{ easy_rsa_domain }}"
 easy_rsa_var_req_email: ""
-easy_rsa_var_ca_req_ou: pki
-easy_rsa_var_request_req_ou: infra
 easy_rsa_var_preserve_dn: 1
+
+easy_rsa_ca_var_req_ou: it
+easy_rsa_ca_var_dn: org  # cn_only
+easy_rsa_ca_var_req_cn: "any.{{ easy_rsa_domain }}"
+
+easy_rsa_request_var_req_ou: it
+easy_rsa_request_var_dn: org  # cn_only
+easy_rsa_request_var_req_cn: "{{ ansible_hostname }}.{{ easy_rsa_domain }}"
 
 easy_rsa_vars_dn:
   - var: EASYRSA_REQ_COUNTRY
@@ -150,8 +159,7 @@ easy_rsa_vars_security:
   - var: EASYRSA_SAN_CRIT
     value: "{{ easy_rsa_var_san_crit | d(none) }}"
 
-easy_rsa_ca_var_dn: cn_only  # org
-easy_rsa_ca_var_req_cn: "ca.{{ easy_rsa_domain }}"
+easy_rsa_ca_cn: "root.{{ easy_rsa_domain }}"
 
 easy_rsa_vars_ca:
   - var: EASYRSA_DN
@@ -159,10 +167,7 @@ easy_rsa_vars_ca:
   - var: EASYRSA_REQ_CN
     value: "{{ easy_rsa_ca_var_req_cn }}"
   - var: EASYRSA_REQ_OU
-    value: "{{ easy_rsa_var_ca_req_ou }}"
-
-easy_rsa_request_var_dn: org  # cn_only
-easy_rsa_request_var_req_cn: "{{ ansible_hostname }}.{{ easy_rsa_domain }}"
+    value: "{{ easy_rsa_ca_var_req_ou }}"
 
 easy_rsa_vars_request:
   - var: EASYRSA_DN
@@ -170,11 +175,23 @@ easy_rsa_vars_request:
   - var: EASYRSA_REQ_CN
     value: "{{ easy_rsa_request_var_req_cn }}"
   - var: EASYRSA_REQ_OU
-    value: "{{ easy_rsa_var_request_req_ou }}"
+    value: "{{ easy_rsa_request_var_req_ou }}"
+
 
 easy_rsa_default_certificates_to_generate:
-  - { cn: "{{ ansible_hostname | lower }}.{{ easy_rsa_domain }}", type: serverClient }
-  - { cn: "home.{{ easy_rsa_domain }}", type: server }
-  - { cn: "www.{{ easy_rsa_domain }}", type: server }
+  - cn: "{{ ansible_hostname | lower }}.{{ easy_rsa_domain }}"
+    dns:
+      - localhost
+    type: serverClient
+  # - cn: "home.{{ easy_rsa_domain }}"
+  #   type: server
+  # - cn: "www.{{ easy_rsa_domain }}"
+  #   type: server
 
-easy_rsa_custom_certificates_to_generate: []
+easy_rsa_default_ca_certificates_to_generate: "{{ easy_rsa_default_certificates_to_generate }}"
+
+easy_rsa_custom_ca_certificates_to_generate: []
+
+easy_rsa_default_requests_to_generate: []
+
+easy_rsa_custom_requests_to_generate: []

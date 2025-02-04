@@ -1,0 +1,48 @@
+---
+
+- name: check if cert exists
+  stat:
+    path: "{{ easy_rsa_request_pki_dir }}/reqs/{{ cn }}.req"
+  register: t_easy_rsa_generate_request_crt
+
+- block:
+    - name: create request
+      command: "{{ easy_rsa_dist_bin }} --batch --san=DNS:{{ cn }} --san=DNS:{{ cn.split('.')[0] }} {{ dns | map('regex_replace', '^(.*)$', '--san=DNS:\\1') | join(' ') }} --req-cn={{ cn }} gen-req {{ cn }} nopass"
+      # {{ dns | map('regex_replace', '^([^\\.]+).*$', '--san=DNS:\\1') | join(' ') }}
+      args:
+        chdir: "{{ easy_rsa_request_dir }}"
+      # environment:
+      #   OS: ""
+      become: yes
+      become_user: "{{ easy_rsa_user }}"
+
+    - block:
+
+        - name: import request
+          command: "{{ easy_rsa_dist_bin }} --batch import-req {{ easy_rsa_request_pki_dir }}/reqs/{{ cn }}.req {{ cn }}"
+          args:
+            chdir: "{{ easy_rsa_ca_dir }}"
+          # environment:
+          #   OS: ""
+          become: yes
+          become_user: "{{ easy_rsa_user }}"
+
+        - name: sign request
+          command: "{{ easy_rsa_dist_bin }} --batch --copy-ext --passin=file:passphrase sign-req {{ type }} {{ cn }}"
+          args:
+            chdir: "{{ easy_rsa_ca_dir }}"
+          become: yes
+          become_user: "{{ easy_rsa_user }}"
+
+        - name: copy cert
+          copy:
+            src: "{{ easy_rsa_ca_pki_dir }}/issued/{{ cn }}.crt"
+            dest: "{{ easy_rsa_request_pki_dir }}/certs/{{ cn }}.crt"
+            remote_src: yes
+            owner: "{{ easy_rsa_user }}"
+            group: "{{ easy_rsa_group }}"
+            mode: "0640"
+
+      when: easy_rsa_want_ca
+
+  when: not t_easy_rsa_generate_request_crt.stat.exists

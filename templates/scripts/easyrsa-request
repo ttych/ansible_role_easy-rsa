@@ -1,0 +1,9 @@
+#!/bin/sh
+
+set -e
+
+EASY_RSA_REQUEST_DIR="{{ easy_rsa_request_dir }}"
+EASY_RSA_BIN="{{ easy_rsa_dist_bin }}"
+
+cd "$EASY_RSA_REQUEST_DIR"
+exec "$EASY_RSA_BIN" "$@"
