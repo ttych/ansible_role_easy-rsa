@@ -3,10 +3,10 @@
 - block:
     - include_tasks: context.yml
 
-    - include_tasks: accounts.yml
+    - include_tasks: _accounts.yml
       vars:
-        accounts_groups: "{{ easy_rsa_groups }}"
-        accounts_users: "{{ easy_rsa_users }}"
+        _accounts_groups: "{{ easy_rsa_groups }}"
+        _accounts_users: "{{ easy_rsa_users }}"
 
     - include_tasks: workspace.yml
       vars:

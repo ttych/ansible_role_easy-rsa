@@ -1,0 +1,8 @@
+---
+
+- name: groups
+  group:
+    name: "{{ _group.name }}"
+    state: "{{ _group.state | default('present') }}"
+    gid: "{{ _group.gid | default(omit) }}"
+    system: "{{ _group.system | default('no') }}"
