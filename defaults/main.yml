@@ -8,7 +8,7 @@ easy_rsa_want_request: true
 easy_rsa_domain: local
 
 easy_rsa_name: easy_rsa
-easy_rsa_dir: "/app/{{ easy_rsa_name }}"
+easy_rsa_dir: "/app/{{ easy_rsa_name }}.{{ easy_rsa_domain }}"
 
 easy_rsa_version: 3.2.1
 
@@ -91,11 +91,11 @@ easy_rsa_var_req_org: "{{ easy_rsa_domain }}"
 easy_rsa_var_req_email: ""
 easy_rsa_var_preserve_dn: 1
 
-easy_rsa_ca_var_req_ou: it
+easy_rsa_ca_var_req_ou: compute
 easy_rsa_ca_var_dn: org  # cn_only
 easy_rsa_ca_var_req_cn: "any.{{ easy_rsa_domain }}"
 
-easy_rsa_request_var_req_ou: it
+easy_rsa_request_var_req_ou: compute
 easy_rsa_request_var_dn: org  # cn_only
 easy_rsa_request_var_req_cn: "{{ ansible_hostname }}.{{ easy_rsa_domain }}"
 
